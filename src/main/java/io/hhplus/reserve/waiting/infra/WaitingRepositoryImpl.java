@@ -5,6 +5,8 @@ import io.hhplus.reserve.waiting.domain.WaitingRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class WaitingRepositoryImpl implements WaitingRepository {
 
@@ -21,12 +23,12 @@ public class WaitingRepositoryImpl implements WaitingRepository {
 
     @Override
     public int getWaitingCount(Waiting waiting) {
-        return waitingJpaRepository.countWaitByConcertId(waiting.getConcertId(), waiting.getCreatedAt());
+        return waitingJpaRepository.countWaitByConcertId(waiting.getConcertId(), waiting.getCreatedAt(), waiting.getUserId());
     }
 
     @Override
     public boolean isWaitingEmpty(Waiting waiting) {
-        return waitingJpaRepository.countWaitByConcertId(waiting.getConcertId(), waiting.getCreatedAt()) == 0;
+        return waitingJpaRepository.countWaitByConcertId(waiting.getConcertId(), waiting.getCreatedAt(), waiting.getUserId()) == 0;
     }
 
     @Override
@@ -37,5 +39,10 @@ public class WaitingRepositoryImpl implements WaitingRepository {
     @Override
     public Waiting saveWaiting(Waiting waiting) {
         return waitingJpaRepository.save(waiting);
+    }
+
+    @Override
+    public List<Waiting> getExpiredWaitingList() {
+        return waitingJpaRepository.findExpiredWaitingList();
     }
 }

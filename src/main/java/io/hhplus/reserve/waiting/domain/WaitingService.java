@@ -28,14 +28,12 @@ public class WaitingService {
 
     // 토큰 조회 및 갱신
     public TokenInfo.Status refreshToken(TokenCommand.Status command) {
-        Waiting givenToken = validateToken(command.getToken());
-
-        boolean isWaitingEmpty = waitingRepository.isWaitingEmpty(givenToken);
-        if (isWaitingEmpty) {
-            givenToken.updateStatus(WaitingStatus.ACTIVE);
-        }
+        Waiting givenToken = waitingRepository.getWaiting(command.getToken());
 
         int waitingCount = waitingRepository.getWaitingCount(givenToken);
+        givenToken.activateStatusNoWaiting(waitingCount);
+
+        waitingRepository.saveWaiting(givenToken);
 
         return TokenInfo.Status.of(givenToken, waitingCount);
     }
@@ -48,7 +46,8 @@ public class WaitingService {
     }
 
     // 토큰 삭제
-    public void deleteToken(Waiting waiting) {
+    public void deleteToken(String token) {
+        Waiting waiting = waitingRepository.getWaiting(token);
         waiting.deleteToken();
         waitingRepository.saveWaiting(waiting);
     }
